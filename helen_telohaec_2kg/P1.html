@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P1 ER Chaperone-Mediated Proteostasis and Survival — Helen teloHAEC 2kG</title>
+    <style>
+        /* palette and type ported from gene-program-interpreter (gpi/html_report.py, design A) */
+        :root {
+            --bg: #f6f7f8; --surface: #ffffff; --surface-soft: #f3f5f5;
+            --text: #14201d; --text-soft: #43504c; --muted: #6b7672;
+            --border: #e4e7e6; --border-strong: #d2d7d5; --shadow-soft: 0 1px 2px rgba(16,32,28,.05);
+            --accent: #0d9488; --accent-soft: #e6f6f3; --accent-text: #0b6b61;
+            --up: #b8615a; --up-soft: #f4ebe9; --down: #3d7d9e; --down-soft: #e8eff2;
+            --radius: 12px; --maxw: 1080px;
+        }
+        html[data-theme="dark"] {
+            --bg: #0c0f0e; --surface: #141917; --surface-soft: #1a201e;
+            --text: #e8ecea; --text-soft: #b7c0bc; --muted: #8a938f;
+            --border: #262d2a; --border-strong: #333b37; --shadow-soft: none;
+            --accent-soft: #0e2a27; --accent-text: #5eead4;
+            --up: #d98e86; --up-soft: #271815; --down: #7fb0c9; --down-soft: #13222a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6; font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: var(--accent-text); }
+        .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+        .topbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: 14px; padding: 10px 20px;
+            background: color-mix(in srgb, var(--surface) 88%, transparent);
+            backdrop-filter: saturate(1.4) blur(8px); border-bottom: 1px solid var(--border); }
+        .brand { display: flex; align-items: baseline; gap: 8px; font-weight: 700; letter-spacing: -.01em; color: var(--text); text-decoration: none; }
+        .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); display: inline-block; }
+        .brand .sub { font-weight: 500; font-size: 12px; color: var(--muted); }
+        .topbar .spacer { flex: 1; }
+        .iconbtn { font: inherit; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 8px; text-decoration: none;
+            border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
+        .iconbtn:hover { border-color: var(--border-strong); }
+        .iconbtn.off { opacity: .35; pointer-events: none; }
+
+        .canvas { padding: 32px clamp(18px, 3vw, 40px) 64px; }
+        .wrap { max-width: var(--maxw); margin: 0 auto; }
+        .hero { margin-bottom: 28px; }
+        .kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700;
+            letter-spacing: .07em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 12px; }
+        .kicker .pid { background: var(--accent); color: #fff; padding: 2px 9px; border-radius: 999px; letter-spacing: .02em; }
+        .kicker .crumb { color: var(--muted); font-weight: 600; }
+        h1.title { font-size: clamp(26px, 3.3vw, 37px); line-height: 1.13; letter-spacing: -.018em; font-weight: 760; margin-bottom: 14px; text-wrap: balance; }
+        .lead { font-size: 16.5px; line-height: 1.62; color: var(--text-soft); text-wrap: pretty; }
+
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+        .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+            box-shadow: var(--shadow-soft); padding: 18px 20px 20px; }
+        .section h2 { font-size: 16px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 4px; }
+        .section .hmeta { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+
+        .genes { display: flex; flex-wrap: wrap; gap: 6px; }
+        .gene { font-size: 12.5px; font-weight: 550; font-family: ui-monospace, "SF Mono", Menlo, monospace; text-decoration: none;
+            padding: 2px 8px; border-radius: 6px; background: var(--surface-soft); border: 1px solid var(--border); color: var(--text-soft); }
+        a.gene:hover { border-color: var(--accent); }
+        .gene.uniq { background: var(--accent-soft); border-color: transparent; color: var(--accent-text); font-weight: 600; }
+
+        table.regs { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        table.regs th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+            font-weight: 700; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+        table.regs td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+        table.regs tr:last-child td { border-bottom: 0; }
+        .badge { font-size: 11.5px; font-weight: 650; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+        .badge.act { background: var(--down-soft); color: var(--down); }
+        .badge.rep { background: var(--up-soft); color: var(--up); }
+        .empty { color: var(--muted); font-size: 13.5px; }
+
+        ol.go { padding-left: 22px; font-size: 14px; color: var(--text-soft); }
+        ol.go li { padding: 2px 0; }
+
+        .plist { display: grid; gap: 12px; }
+        a.pcard { display: block; text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow-soft); }
+        a.pcard:hover { border-color: var(--accent); }
+        a.pcard .pname { font-weight: 700; font-size: 16px; margin: 2px 0 4px; }
+        a.pcard .pdesc { font-size: 13.5px; color: var(--text-soft); }
+        .footer { margin-top: 36px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 14px; }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="../index.html"><span class="dot"></span>Program reports<span class="sub">Helen teloHAEC 2kG</span></a>
+        <div class="spacer"></div>
+        <a class="iconbtn" href="index.html">All programs</a><a class="iconbtn off" href="#" title="Previous program">&larr;</a><a class="iconbtn off" href="#" title="Next program">&rarr;</a>
+        <button class="iconbtn" id="themebtn" onclick="toggleTheme()">Dark</button>
+    </header>
+    <main class="canvas"><div class="wrap">
+
+        <section class="hero">
+            <div class="kicker"><span class="pid">P1</span><span class="crumb">Helen teloHAEC 2kG</span><span class="crumb">teloHAEC aortic endothelial cell</span></div>
+            <h1 class="title">ER Chaperone-Mediated Proteostasis and Survival</h1>
+            <p class="lead">This program reflects an ER chaperone/unfolded-protein-response network (HSPA5, HSP90B1, PDIA3) coupled to translational control (EEF1A1, CAPRIN1) that protects aortic endothelial cells from apoptosis under proteotoxic stress.</p>
+        </section>
+        <div class="grid">
+            <section class="section"><h2>Top genes</h2><div class="hmeta">Top 15 by program loading</div><div class="genes"><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/7556" title="zinc finger protein 10" target="_blank" rel="noopener">ZNF10</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/7184" title="heat shock protein 90 beta family member 1" target="_blank" rel="noopener">HSP90B1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/3309" title="heat shock protein family A (Hsp70) member 5" target="_blank" rel="noopener">HSPA5</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/401944" title="low density lipoprotein receptor class A domain containing 2" target="_blank" rel="noopener">LDLRAD2</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/2923" title="protein disulfide isomerase family A member 3" target="_blank" rel="noopener">PDIA3</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/2023" title="enolase 1" target="_blank" rel="noopener">ENO1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/11140" title="cell division cycle 37, HSP90 cochaperone" target="_blank" rel="noopener">CDC37</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/4541" title="NADH dehydrogenase subunit 6" target="_blank" rel="noopener">MT-ND6</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/7534" title="tyrosine 3-monooxygenase/tryptophan 5-monooxygenase activation protein zeta" target="_blank" rel="noopener">YWHAZ</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/4735" title="septin 2" target="_blank" rel="noopener">SEPTIN2</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/3091" title="hypoxia inducible factor 1 subunit alpha" target="_blank" rel="noopener">HIF1A</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/4076" title="cell cycle associated protein 1" target="_blank" rel="noopener">CAPRIN1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/308" title="annexin A5" target="_blank" rel="noopener">ANXA5</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/301" title="annexin A1" target="_blank" rel="noopener">ANXA1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/1915" title="eukaryotic translation elongation factor 1 alpha 1" target="_blank" rel="noopener">EEF1A1</a></div></section>
+            <section class="section"><h2>Top unique genes</h2><div class="hmeta">High in this program, low in others</div><div class="genes"><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/7458" title="eukaryotic translation initiation factor 4H" target="_blank" rel="noopener">EIF4H</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/2665" title="GDP dissociation inhibitor 2" target="_blank" rel="noopener">GDI2</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/6500" title="S-phase kinase associated protein 1" target="_blank" rel="noopener">SKP1</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/2806" title="glutamic-oxaloacetic transaminase 2" target="_blank" rel="noopener">GOT2</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/10128" title="leucine rich pentatricopeptide repeat containing" target="_blank" rel="noopener">LRPPRC</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/3064" title="huntingtin" target="_blank" rel="noopener">HTT</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/54832" title="vacuolar protein sorting 13 homolog C" target="_blank" rel="noopener">VPS13C</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/51164" title="dynactin subunit 4" target="_blank" rel="noopener">DCTN4</a></div></section>
+            <section class="section"><h2>Top regulators</h2><div class="hmeta">Program usage log2FC on CRISPRi knockdown</div><table class="regs"><thead><tr><th>Regulator</th><th>log2FC</th><th>Sign</th><th>adj p</th><th>Condition</th></tr></thead><tbody><tr><td class="mono" title="vir like m6A methyltransferase associated"><b>KIAA1429</b> <span class="empty">(VIRMA)</span></td><td>-0.50</td><td><span class="badge act">activator &darr;</span></td><td>0.048</td><td>EC</td></tr></tbody></table></section>
+            <section class="section"><h2>Top GO terms</h2><div class="hmeta">Gene-set enrichment of the program genes</div><ol class="go"><li>Regulation Of Translation</li><li>Protein-Containing Complex Assembly</li><li>Protein Targeting To Lysosome</li><li>Protein Transport</li><li>Negative Regulation Of Apoptotic Process</li><li>Maintenance Of Blood-Brain Barrier</li><li>Negative Regulation Of Macromolecule Biosynthetic Process</li><li>Regulation Of Apoptotic Process</li><li>Regulation Of Translational Initiation</li><li>Negative Regulation Of Programmed Cell Death</li></ol></section>
+        </div>
+        <div class="footer">Generated 2026-10-02 &middot; name and summary by claude-sonnet-5 &middot; source Literature_info_extended_PerturbNMF_Info/P1.json</div>
+    </div></main>
+    <script>
+        function setTheme(t){ document.documentElement.dataset.theme = t; document.getElementById("themebtn").textContent = t === "dark" ? "Light" : "Dark"; }
+        function toggleTheme(){ const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; localStorage.setItem("theme", t); setTheme(t); }
+        setTheme(localStorage.getItem("theme") || "light");
+    </script>
+</body>
+</html>
