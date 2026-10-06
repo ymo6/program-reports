@@ -109,6 +109,24 @@
         .pmeta { font-size: 11.5px; color: var(--muted); }
         .notexp { margin: 12px 0 0; }
         .hmeta.ctype { margin: 12px 0 0; }
+        .badge.ns { background: var(--surface-soft); color: var(--muted); border: 1px solid var(--border); }
+        details.group.sub { margin-top: 18px; }
+        details.group.sub > .ghead { font-size: 11px; }
+        details.more { margin-top: 12px; }
+        .stack { display: grid; gap: 16px; }
+        .vrow { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); gap: 12px; }
+        @media (max-width: 1100px) { .vrow { grid-template-columns: repeat(min(var(--n, 1), 2), minmax(0, 1fr)); } }
+        @media (max-width: 760px) { .vrow { grid-template-columns: 1fr; } }
+        .vhead { font-size: 12.5px; color: var(--text-soft); margin-bottom: 2px; }
+        .frow + .frow { margin-top: 12px; }
+        .fhead { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .group > details.more { margin: 12px 0 0; }
+        details.more > summary { font-size: 12.5px; font-weight: 600; color: var(--accent-text); cursor: pointer; list-style: none; }
+        details.more > summary::-webkit-details-marker { display: none; }
+        details.more > summary::before { content: "\25B8  "; }
+        details.more[open] > summary::before { content: "\25BE  "; }
+        .psub { font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 10px 0 6px; }
+        .pmeta .badge { font-size: 10.5px; padding: 1px 6px; margin-left: 2px; }
         .footer { margin-top: 36px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 14px; }
     </style>
 </head>
@@ -120,8 +138,8 @@
         <button class="iconbtn" id="themebtn" onclick="toggleTheme()">Dark</button>
     </header>
     <main class="canvas"><div class="wrap">
-<section class="hero"><h1 class="title">Program reports</h1></section><div class="plist"><a class="pcard" href="telohaec_2kg/index.html"><div class="pname">teloHAEC 2kG</div><div class="pdesc">1 programs &middot; updated 2026-10-02</div></a></div>
-        <div class="footer">Generated 2026-10-02</div>
+<section class="hero"><h1 class="title">Program reports</h1></section><div class="plist"><a class="pcard" href="telohaec_2kg/index.html"><div class="pname">teloHAEC 2kG</div><div class="pdesc">10 programs &middot; updated 2026-10-05</div></a></div>
+        <div class="footer">Generated 2026-10-05</div>
     </div></main>
     <script>
         function setTheme(t){ document.documentElement.dataset.theme = t; document.getElementById("themebtn").textContent = t === "dark" ? "Light" : "Dark"; }
