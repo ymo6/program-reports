@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P1 HUSH Complex Retroelement and lncRNA Silencing — IGVF ccPerturb-seq K50</title>
+    <style>
+        /* palette and type ported from gene-program-interpreter (gpi/html_report.py, design A) */
+        :root {
+            --bg: #f6f7f8; --surface: #ffffff; --surface-soft: #f3f5f5;
+            --text: #14201d; --text-soft: #43504c; --muted: #6b7672;
+            --border: #e4e7e6; --border-strong: #d2d7d5; --shadow-soft: 0 1px 2px rgba(16,32,28,.05);
+            --accent: #0d9488; --accent-soft: #e6f6f3; --accent-text: #0b6b61;
+            --up: #b8615a; --up-soft: #f4ebe9; --down: #3d7d9e; --down-soft: #e8eff2;
+            --radius: 12px; --maxw: 1080px;
+        }
+        html[data-theme="dark"] {
+            --bg: #0c0f0e; --surface: #141917; --surface-soft: #1a201e;
+            --text: #e8ecea; --text-soft: #b7c0bc; --muted: #8a938f;
+            --border: #262d2a; --border-strong: #333b37; --shadow-soft: none;
+            --accent-soft: #0e2a27; --accent-text: #5eead4;
+            --up: #d98e86; --up-soft: #271815; --down: #7fb0c9; --down-soft: #13222a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6; font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: var(--accent-text); }
+        .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+        .topbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: 14px; padding: 10px 20px;
+            background: color-mix(in srgb, var(--surface) 88%, transparent);
+            backdrop-filter: saturate(1.4) blur(8px); border-bottom: 1px solid var(--border); }
+        .brand { display: flex; align-items: baseline; gap: 8px; font-weight: 700; letter-spacing: -.01em; color: var(--text); text-decoration: none; }
+        .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); display: inline-block; }
+        .brand .sub { font-weight: 500; font-size: 12px; color: var(--muted); }
+        .topbar .spacer { flex: 1; }
+        .iconbtn { font: inherit; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 8px; text-decoration: none;
+            border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
+        .iconbtn:hover { border-color: var(--border-strong); }
+        .iconbtn.off { opacity: .35; pointer-events: none; }
+
+        .canvas { padding: 32px clamp(18px, 3vw, 40px) 64px; }
+        .wrap { max-width: var(--maxw); margin: 0 auto; }
+        .hero { margin-bottom: 28px; }
+        .kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700;
+            letter-spacing: .07em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 12px; }
+        .kicker .pid { background: var(--accent); color: #fff; padding: 2px 9px; border-radius: 999px; letter-spacing: .02em; }
+        .kicker .crumb { color: var(--muted); font-weight: 600; }
+        h1.title { font-size: clamp(26px, 3.3vw, 37px); line-height: 1.13; letter-spacing: -.018em; font-weight: 760; margin-bottom: 14px; text-wrap: balance; }
+        .lead { font-size: 16.5px; line-height: 1.62; color: var(--text-soft); text-wrap: pretty; }
+
+        .group { margin-top: 8px; }
+        .ghead { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+            padding-bottom: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--border);
+            cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; user-select: none; }
+        .ghead::-webkit-details-marker { display: none; }
+        .ghead::before { content: "\25B8"; font-size: 12px; transition: transform .18s ease; }
+        .group[open] > .ghead::before { transform: rotate(90deg); }
+        .ghead:hover { color: var(--text); }
+        .group:not([open]) > .ghead { margin-bottom: 0; }
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+        .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+            box-shadow: var(--shadow-soft); padding: 18px 20px 20px; }
+        .section h2 { font-size: 16px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 4px; }
+        .section .hmeta { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+
+        .genes { display: flex; flex-wrap: wrap; gap: 6px; }
+        .gene { font-size: 12.5px; font-weight: 550; font-family: ui-monospace, "SF Mono", Menlo, monospace; text-decoration: none;
+            padding: 2px 8px; border-radius: 6px; background: var(--surface-soft); border: 1px solid var(--border); color: var(--text-soft); }
+        a.gene:hover { border-color: var(--accent); }
+        .gene.uniq { background: var(--accent-soft); border-color: transparent; color: var(--accent-text); font-weight: 600; }
+
+        table.regs { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        table.regs th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+            font-weight: 700; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+        table.regs td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+        table.regs tr:last-child td { border-bottom: 0; }
+        .badge { font-size: 11.5px; font-weight: 650; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+        .badge.act { background: var(--down-soft); color: var(--down); }
+        .badge.rep { background: var(--up-soft); color: var(--up); }
+        .empty { color: var(--muted); font-size: 13.5px; }
+
+        ol.go { padding-left: 22px; font-size: 14px; color: var(--text-soft); }
+        ol.go li { padding: 2px 0; }
+
+        .plist { display: grid; gap: 12px; }
+        a.pcard { display: block; text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow-soft); }
+        a.pcard:hover { border-color: var(--accent); }
+        a.pcard .pname { font-weight: 700; font-size: 16px; margin: 2px 0 4px; }
+        a.pcard .pdesc { font-size: 13.5px; color: var(--text-soft); }
+        .group + .group { margin-top: 28px; }
+        .gnote { margin: -6px 0 14px; }
+        .dhead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 2px; }
+        .dhead .gene { font-size: 14px; }
+        .badge.sup { background: var(--accent-soft); color: var(--accent-text); }
+        .badge.mix { background: var(--up-soft); color: var(--up); }
+        .reason { font-size: 14px; color: var(--text); margin-bottom: 10px; }
+        ul.papers { list-style: none; display: grid; gap: 8px; }
+        ul.papers li { border-left: 2px solid var(--border-strong); padding-left: 10px; }
+        .ptitle { font-size: 13px; font-weight: 600; line-height: 1.4; }
+        .ptitle a { text-decoration: none; }
+        .ptitle a:hover { text-decoration: underline; }
+        .pex { font-size: 12.5px; color: var(--text-soft); }
+        .pmeta { font-size: 11.5px; color: var(--muted); }
+        .notexp { margin: 12px 0 0; }
+        .hmeta.ctype { margin: 12px 0 0; }
+        .badge.ns { background: var(--surface-soft); color: var(--muted); border: 1px solid var(--border); }
+        details.group.sub { margin-top: 18px; }
+        details.group.sub > .ghead { font-size: 11px; }
+        details.more { margin-top: 12px; }
+        .stack { display: grid; gap: 16px; }
+        .vrow { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); gap: 12px; }
+        @media (max-width: 1100px) { .vrow { grid-template-columns: repeat(min(var(--n, 1), 2), minmax(0, 1fr)); } }
+        @media (max-width: 760px) { .vrow { grid-template-columns: 1fr; } }
+        .vhead { font-size: 12.5px; color: var(--text-soft); margin-bottom: 2px; }
+        .frow + .frow { margin-top: 12px; }
+        .fhead { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .group > details.more { margin: 12px 0 0; }
+        details.more > summary { font-size: 12.5px; font-weight: 600; color: var(--accent-text); cursor: pointer; list-style: none; }
+        details.more > summary::-webkit-details-marker { display: none; }
+        details.more > summary::before { content: "\25B8  "; }
+        details.more[open] > summary::before { content: "\25BE  "; }
+        .psub { font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 10px 0 6px; }
+        .pmeta .badge { font-size: 10.5px; padding: 1px 6px; margin-left: 2px; }
+        .footer { margin-top: 36px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 14px; }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="../index.html"><span class="dot"></span>Program reports<span class="sub">IGVF ccPerturb-seq K50</span></a>
+        <div class="spacer"></div>
+        <a class="iconbtn" href="index.html">All programs</a><a class="iconbtn off" href="#" title="Previous program">&larr;</a><a class="iconbtn off" href="#" title="Next program">&rarr;</a>
+        <button class="iconbtn" id="themebtn" onclick="toggleTheme()">Dark</button>
+    </header>
+    <main class="canvas"><div class="wrap">
+
+        <section class="hero">
+            <div class="kicker"><span class="pid">P1</span></div>
+            <h1 class="title">HUSH Complex Retroelement and lncRNA Silencing</h1>
+            <p class="lead">This program marks heterochromatic loci (lncRNAs, pseudogenes and retroelement-proximal transcripts such as MALAT1 and DLEU1) normally silenced by the HUSH complex (TASOR, RESF1, SETDB1), which become derepressed as hPSC-derived mesoderm transitions toward artery endothelium, peaking at day 2.</p>
+        </section>
+        <details class="group" open>
+        <summary class="ghead">PerturbNMF input for annotation</summary>
+        <div class="grid">
+            <section class="section"><h2>Top genes</h2><div class="hmeta">Top 15 by program loading</div><div class="genes"><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000275778%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000275778" target="_blank" rel="noopener">ENSG00000275778</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/5554" title="proline rich protein HaeIII subfamily 1" target="_blank" rel="noopener">PRH1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/50840" title="taste 2 receptor member 14" target="_blank" rel="noopener">TAS2R14</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/728215" title="NALCN channel auxiliary factor 1" target="_blank" rel="noopener">NALF1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/4550" title="l-rRNA" target="_blank" rel="noopener">MT-RNR2</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000259692%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000259692" target="_blank" rel="noopener">ENSG00000259692</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/4549" title="s-rRNA" target="_blank" rel="noopener">MT-RNR1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/100302692" title="FTX transcript, XIST regulator" target="_blank" rel="noopener">FTX</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/10301" title="deleted in lymphocytic leukemia 1" target="_blank" rel="noopener">DLEU1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/51741" title="WW domain containing oxidoreductase" target="_blank" rel="noopener">WWOX</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/378938" title="metastasis associated lung adenocarcinoma transcript 1" target="_blank" rel="noopener">MALAT1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000283674%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000283674" target="_blank" rel="noopener">ENSG00000283674</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000279168%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000279168" target="_blank" rel="noopener">ENSG00000279168</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/5592" title="protein kinase cGMP-dependent 1" target="_blank" rel="noopener">PRKG1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/6095" title="RAR related orphan receptor A" target="_blank" rel="noopener">RORA</a></div></section>
+            <section class="section"><h2>Top unique genes</h2><div class="hmeta">High in this program, low in others among top 300 loaded genes</div><div class="genes"><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000270249%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000270249" target="_blank" rel="noopener">ENSG00000270249</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000267645%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000267645" target="_blank" rel="noopener">ENSG00000267645</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/?term=PARD3%5Bsym%5D+AND+human%5Borgn%5D" title="PARD3" target="_blank" rel="noopener">PARD3</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/?term=EXOC4%5Bsym%5D+AND+human%5Borgn%5D" title="EXOC4" target="_blank" rel="noopener">EXOC4</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/?term=LINC01876%5Bsym%5D+AND+human%5Borgn%5D" title="LINC01876" target="_blank" rel="noopener">LINC01876</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/?term=MBD5%5Bsym%5D+AND+human%5Borgn%5D" title="MBD5" target="_blank" rel="noopener">MBD5</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/?term=LINC01572%5Bsym%5D+AND+human%5Borgn%5D" title="LINC01572" target="_blank" rel="noopener">LINC01572</a><a class="gene uniq" href="https://www.ncbi.nlm.nih.gov/gene/?term=RAD51B%5Bsym%5D+AND+human%5Borgn%5D" title="RAD51B" target="_blank" rel="noopener">RAD51B</a></div></section>
+            <section class="section"><h2>Top regulators</h2><div class="hmeta">Program usage log2FC on CRISPRi knockdown</div><table class="regs"><thead><tr><th>Regulator</th><th>log2FC</th><th>Sign</th><th>adj p</th><th>Condition</th></tr></thead><tbody><tr><td class="mono" title="activating signal cointegrator 1 complex subunit 3"><b>ASCC3</b></td><td>+2.91</td><td><span class="badge rep">repressor &uarr;</span></td><td>1e-14</td><td>D3</td></tr><tr><td class="mono" title="debranching RNA lariats 1"><b>DBR1</b></td><td>+2.24</td><td><span class="badge rep">repressor &uarr;</span></td><td>1.2e-13</td><td>D0</td></tr><tr><td class="mono" title="SET domain bifurcated histone lysine methyltransferase 1"><b>SETDB1</b></td><td>+2.88</td><td><span class="badge rep">repressor &uarr;</span></td><td>3.4e-12</td><td>D3</td></tr><tr><td class="mono" title="5&#x27;-3&#x27; exoribonuclease 1"><b>XRN1</b></td><td>-2.63</td><td><span class="badge act">activator &darr;</span></td><td>6.6e-08</td><td>D2</td></tr><tr><td class="mono" title="von Hippel-Lindau tumor suppressor"><b>VHL</b></td><td>+2.74</td><td><span class="badge rep">repressor &uarr;</span></td><td>8.8e-08</td><td>D3</td></tr><tr><td class="mono" title="caspase 3"><b>CASP3</b></td><td>+1.92</td><td><span class="badge rep">repressor &uarr;</span></td><td>4.9e-06</td><td>D3</td></tr></tbody></table></section>
+            <section class="section"><h2>Top GO terms</h2><div class="hmeta">Gene ontology enrichment of top 300 program genes</div><p class="empty">No enriched GO term.</p></section>
+        </div>
+        </details>
+        <details class="group" open>
+        <summary class="ghead">Pre-annotation screen</summary>
+        <div class="grid">
+            <section class="section"><h2>Family label</h2><div class="hmeta">Gene families and marker sets enriched among the top 50 genes, against this run's gene universe</div><p class="empty">None: no family or marker set has &ge; 3 of the top 50 genes at p &le; 0.001.</p></section>
+            <section class="section"><h2>Chromosome enrichment</h2><div class="hmeta">Chromosome holding more top genes than expected (binomial test)</div><div class="frow"><div class="fhead"><b>chr7</b></div><div class="hmeta">7 of 49 located top genes (expected 2.4, fold 2.86), binomial p = 1.05e-02</div><div class="genes"><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=AUTS2%5Bsym%5D+AND+human%5Borgn%5D" title="AUTS2" target="_blank" rel="noopener">AUTS2</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=CUX1%5Bsym%5D+AND+human%5Borgn%5D" title="CUX1" target="_blank" rel="noopener">CUX1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000270249%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000270249" target="_blank" rel="noopener">ENSG00000270249</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000279168%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000279168" target="_blank" rel="noopener">ENSG00000279168</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000267645%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000267645" target="_blank" rel="noopener">ENSG00000267645</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=IMMP2L%5Bsym%5D+AND+human%5Borgn%5D" title="IMMP2L" target="_blank" rel="noopener">IMMP2L</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=EXOC4%5Bsym%5D+AND+human%5Borgn%5D" title="EXOC4" target="_blank" rel="noopener">EXOC4</a></div></div></section>
+        </div><details class="more"><summary>All 50 screened genes</summary><div class="genes"><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000275778%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000275778" target="_blank" rel="noopener">ENSG00000275778</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/5554" title="proline rich protein HaeIII subfamily 1" target="_blank" rel="noopener">PRH1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/50840" title="taste 2 receptor member 14" target="_blank" rel="noopener">TAS2R14</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/728215" title="NALCN channel auxiliary factor 1" target="_blank" rel="noopener">NALF1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/4550" title="l-rRNA" target="_blank" rel="noopener">MT-RNR2</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000259692%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000259692" target="_blank" rel="noopener">ENSG00000259692</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/4549" title="s-rRNA" target="_blank" rel="noopener">MT-RNR1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/100302692" title="FTX transcript, XIST regulator" target="_blank" rel="noopener">FTX</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/10301" title="deleted in lymphocytic leukemia 1" target="_blank" rel="noopener">DLEU1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/51741" title="WW domain containing oxidoreductase" target="_blank" rel="noopener">WWOX</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/378938" title="metastasis associated lung adenocarcinoma transcript 1" target="_blank" rel="noopener">MALAT1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000283674%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000283674" target="_blank" rel="noopener">ENSG00000283674</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000279168%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000279168" target="_blank" rel="noopener">ENSG00000279168</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/5592" title="protein kinase cGMP-dependent 1" target="_blank" rel="noopener">PRKG1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/6095" title="RAR related orphan receptor A" target="_blank" rel="noopener">RORA</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=GPC6%5Bsym%5D+AND+human%5Borgn%5D" title="GPC6" target="_blank" rel="noopener">GPC6</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=LRRTM4%5Bsym%5D+AND+human%5Borgn%5D" title="LRRTM4" target="_blank" rel="noopener">LRRTM4</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000270249%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000270249" target="_blank" rel="noopener">ENSG00000270249</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000267645%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000267645" target="_blank" rel="noopener">ENSG00000267645</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=PCDH11X%5Bsym%5D+AND+human%5Borgn%5D" title="PCDH11X" target="_blank" rel="noopener">PCDH11X</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=PTPRG%5Bsym%5D+AND+human%5Borgn%5D" title="PTPRG" target="_blank" rel="noopener">PTPRG</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=LINC01876%5Bsym%5D+AND+human%5Borgn%5D" title="LINC01876" target="_blank" rel="noopener">LINC01876</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=MBD5%5Bsym%5D+AND+human%5Borgn%5D" title="MBD5" target="_blank" rel="noopener">MBD5</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=POLR2J3-1%5Bsym%5D+AND+human%5Borgn%5D" title="POLR2J3-1" target="_blank" rel="noopener">POLR2J3-1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=RALYL%5Bsym%5D+AND+human%5Borgn%5D" title="RALYL" target="_blank" rel="noopener">RALYL</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=LINC02315%5Bsym%5D+AND+human%5Borgn%5D" title="LINC02315" target="_blank" rel="noopener">LINC02315</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000284606%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000284606" target="_blank" rel="noopener">ENSG00000284606</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=LINC01572%5Bsym%5D+AND+human%5Borgn%5D" title="LINC01572" target="_blank" rel="noopener">LINC01572</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=RAD51B%5Bsym%5D+AND+human%5Borgn%5D" title="RAD51B" target="_blank" rel="noopener">RAD51B</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=PARD3%5Bsym%5D+AND+human%5Borgn%5D" title="PARD3" target="_blank" rel="noopener">PARD3</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=IMMP2L%5Bsym%5D+AND+human%5Borgn%5D" title="IMMP2L" target="_blank" rel="noopener">IMMP2L</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=EXOC4%5Bsym%5D+AND+human%5Borgn%5D" title="EXOC4" target="_blank" rel="noopener">EXOC4</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=CUX1%5Bsym%5D+AND+human%5Borgn%5D" title="CUX1" target="_blank" rel="noopener">CUX1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=SMYD3%5Bsym%5D+AND+human%5Borgn%5D" title="SMYD3" target="_blank" rel="noopener">SMYD3</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=EGFEM1P%5Bsym%5D+AND+human%5Borgn%5D" title="EGFEM1P" target="_blank" rel="noopener">EGFEM1P</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=DNAH14%5Bsym%5D+AND+human%5Borgn%5D" title="DNAH14" target="_blank" rel="noopener">DNAH14</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=DLG2%5Bsym%5D+AND+human%5Borgn%5D" title="DLG2" target="_blank" rel="noopener">DLG2</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000284906%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000284906" target="_blank" rel="noopener">ENSG00000284906</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=PCDH11Y%5Bsym%5D+AND+human%5Borgn%5D" title="PCDH11Y" target="_blank" rel="noopener">PCDH11Y</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=AUTS2%5Bsym%5D+AND+human%5Borgn%5D" title="AUTS2" target="_blank" rel="noopener">AUTS2</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000289901%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000289901" target="_blank" rel="noopener">ENSG00000289901</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000187951%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000187951" target="_blank" rel="noopener">ENSG00000187951</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ENSG00000225689%5Bsym%5D+AND+human%5Borgn%5D" title="ENSG00000225689" target="_blank" rel="noopener">ENSG00000225689</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=HDAC8%5Bsym%5D+AND+human%5Borgn%5D" title="HDAC8" target="_blank" rel="noopener">HDAC8</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=SUMF1%5Bsym%5D+AND+human%5Borgn%5D" title="SUMF1" target="_blank" rel="noopener">SUMF1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=NALF1-IT1%5Bsym%5D+AND+human%5Borgn%5D" title="NALF1-IT1" target="_blank" rel="noopener">NALF1-IT1</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=ZC3H12B%5Bsym%5D+AND+human%5Borgn%5D" title="ZC3H12B" target="_blank" rel="noopener">ZC3H12B</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=NPIPB3%5Bsym%5D+AND+human%5Borgn%5D" title="NPIPB3" target="_blank" rel="noopener">NPIPB3</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=NPIPB5%5Bsym%5D+AND+human%5Borgn%5D" title="NPIPB5" target="_blank" rel="noopener">NPIPB5</a><a class="gene" href="https://www.ncbi.nlm.nih.gov/gene/?term=LNC-LBCS%5Bsym%5D+AND+human%5Borgn%5D" title="LNC-LBCS" target="_blank" rel="noopener">LNC-LBCS</a></div></details>
+        </details>
+        
+        <div class="footer">Generated 2026-10-26 &middot; name and summary by claude-sonnet-5 (Claude agent) &middot; source Programs/P1/</div>
+    </div></main>
+    <script>
+        function setTheme(t){ document.documentElement.dataset.theme = t; document.getElementById("themebtn").textContent = t === "dark" ? "Light" : "Dark"; }
+        function toggleTheme(){ const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; localStorage.setItem("theme", t); setTheme(t); }
+        setTheme(localStorage.getItem("theme") || "light");
+    </script>
+</body>
+</html>
